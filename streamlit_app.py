@@ -15,12 +15,12 @@ st.write("The name on smoothie:", name_on_order)
 
 # Set up the Snowflake connection
 connection_parameters = {
-    "account": "YOUR_ACCOUNT",
-    "user": "YOUR_USERNAME",
-    "password": "YOUR_PASSWORD",
-    "role": "YOUR_ROLE",
-    "warehouse": "YOUR_WAREHOUSE",
-    "database": "YOUR_DATABASE",
+    "account": "FDTSJFF-ITB69604",
+    "user": "PULIJALA511",
+    "password": "Hariprasad.pulijala511@",
+    "role": "SYSADMIN",
+    "warehouse": "COMPUTE_WH",
+    "database": "SMOOTHIES",
     "schema": "PUBLIC"
 }
 
