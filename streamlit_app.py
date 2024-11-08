@@ -1,6 +1,5 @@
 # Import python packages
 import streamlit as st
-import snowflake.connector
 from snowflake.snowpark.session import Session
 from snowflake.snowpark.functions import col
 import requests
@@ -13,19 +12,8 @@ st.write("Choose the fruits you want in your custom Smoothie!")
 name_on_order = st.text_input('Name on smoothie:')
 st.write("The name on smoothie:", name_on_order)
 
-# Set up the Snowflake connection
-connection_parameters = {
-    "account": "FDTSJFF-ITB69604",
-    "user": "PULIJALA511",
-    "password": "Hariprasad.pulijala511@",
-    "role": "SYSADMIN",
-    "warehouse": "COMPUTE_WH",
-    "database": "SMOOTHIES",
-    "schema": "PUBLIC"
-}
-
-# Create Snowpark session
-session = Session.builder.configs(connection_parameters).create()
+# Establish Snowflake session from Streamlit settings
+session = Session.builder.configs(st.secrets["snowflake"]).create()
 
 # Retrieve fruit options as a list
 my_dataframe = session.table("smoothies.public.fruit_options").select(col("FRUIT_NAME")).collect()
@@ -38,17 +26,15 @@ ingredients_list = st.multiselect('Choose up to 5 ingredients:', fruit_options)
 if ingredients_list:
     ingredients_string = ', '.join(ingredients_list)
     
-    # Parameterized SQL insert statement
-    my_insert_stmt = """
-        INSERT INTO smoothies.public.orders (ingredients, name_on_order)
-        VALUES (%s, %s)
-    """
-    
     # Button to submit the order
     time_to_insert = st.button("Submit Order")
     if time_to_insert:
+        my_insert_stmt = f"""
+            INSERT INTO smoothies.public.orders (ingredients, name_on_order)
+            VALUES ('{ingredients_string}', '{name_on_order}')
+        """
         try:
-            session.execute(my_insert_stmt, (ingredients_string, name_on_order))
+            session.sql(my_insert_stmt).collect()
             st.success('Your smoothie has been ordered!')
         except Exception as e:
             st.error(f"An error occurred: {e}")
